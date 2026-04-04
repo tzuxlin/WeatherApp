@@ -6,14 +6,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,6 +29,7 @@ import com.connie.weather.ui.weather.composable.HourlyForecast
 import com.connie.weather.ui.weather.composable.CurrentWeatherInfo
 import com.connie.weather.ui.weather.composable.WeatherFooter
 import com.connie.weather.ui.weather.composable.dailyForecastItems
+import com.connie.weather.ui.composable.WeatherTopBar
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.serialization.Serializable
 
@@ -35,17 +39,32 @@ data object WeatherNavKey : NavKey
 @Composable
 fun WeatherScreen(
     weatherViewModel: WeatherViewModel = viewModel(),
+    onOpenDrawer: () -> Unit,
 ) {
     val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
-    WeatherScreenContent(uiState)
+    WeatherScreenContent(uiState) { onOpenDrawer() }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WeatherScreenContent(uiState: WeatherUiState) {
+private fun WeatherScreenContent(
+    uiState: WeatherUiState,
+    onOpenDrawer: () -> Unit = {},
+) {
     val lazyListState = rememberLazyListState()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     MaterialTheme(colorScheme = if (uiState.isDaytime) lightColorScheme() else darkColorScheme()) {
-        Scaffold { paddingValues ->
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = {
+                WeatherTopBar(
+                    scrollBehavior = scrollBehavior,
+                    uiState = uiState,
+                    onOpenDrawer = onOpenDrawer,
+                )
+            }
+        ) { paddingValues ->
             VerticalFadingEdges(
                 fadeVisibility = rememberFadeVisibility(lazyListState),
                 fadeHeight = 48.dp,

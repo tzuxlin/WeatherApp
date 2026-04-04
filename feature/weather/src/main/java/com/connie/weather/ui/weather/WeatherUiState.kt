@@ -5,6 +5,7 @@ import kotlinx.collections.immutable.PersistentList
 
 data class WeatherUiState(
     val isDaytime: Boolean = false,
+    val isSaved: Boolean = false,
     val currentWeather: ViewState<CurrentWeatherState> = ViewState.Loading,
     val hourlyForecast: ViewState<PersistentList<ForecastState>> = ViewState.Loading,
     val dailyForecast: ViewState<PersistentList<ForecastState>> = ViewState.Loading,

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">WeatherApp</string>
+    <string name="drawer__search_city">Search city</string>
+    <string name="drawer__saved">Saved</string>
 </resources>
