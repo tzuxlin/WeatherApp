@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="weather__feel_like">Feel like %s</string>
+    <string name="weather__max_and_min_temperature">%s / %s</string>
+    <string name="weather__open_weather">OpenWeather</string>
+    <string name="weather__updated_on">Updated on %s</string>
+</resources>
