@@ -60,6 +60,7 @@ This project was developed with selective AI assistance. AI was mainly used to s
 - **Architecture & Design Discussion**: AI was used as a discussion partner to validate architectural ideas, implementation approaches, and design trade-offs.
 - **Boilerplate Support**: AI helped speed up repetitive code generation, such as API response models.
 - **UI / Compose Suggestions**: Some UI details and layout ideas were refined with AI assistance, while most Compose implementation was written manually.
+- **Testing Support**: AI was used to assist with parts of the testing process, such as brainstorming test scenarios and refining test code structure.
 - **Documentation**: AI was used to improve the clarity and wording of the README and selected code comments.
 - **Core Implementation**: The business logic, use cases, repository behavior, dependency injection setup, and overall integration were implemented and reviewed manually.
 

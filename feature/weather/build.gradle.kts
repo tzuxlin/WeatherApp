@@ -48,6 +48,9 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.androidx.navigation3.runtime)
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.core.testing)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
