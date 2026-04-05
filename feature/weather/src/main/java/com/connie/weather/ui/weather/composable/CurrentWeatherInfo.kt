@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -93,26 +95,37 @@ fun CurrentWeatherInfo(
                     style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.secondary),
                 )
             }
-            Spacer(modifier = Modifier.size(16.dp))
-            Text("Local time: ${weather.main}")
         }
     }
 }
 
 @Composable
 private fun EmptyCurrentWeatherInfo(isLoading: Boolean) {
-    Column (
+    Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.size(40.dp))
-        Box(
-            modifier = Modifier
-                .size(108.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.tertiaryContainer)
-                .shimmerSkeleton(isLoading),
-        )
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .size(108.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                    .shimmerSkeleton(true),
+            )
+        } else {
+            Icon(
+                painter = painterResource(com.connie.ui.R.drawable.ic_warning),
+                tint = MaterialTheme.colorScheme.onTertiary,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(108.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                    .padding(24.dp),
+            )
+        }
         Spacer(modifier = Modifier.size(16.dp))
         if (isLoading) {
             Text(

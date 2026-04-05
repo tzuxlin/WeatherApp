@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import com.connie.ui.R
+import com.connie.weather.ui.weather.WeatherUiEvent
 import com.connie.weather.ui.weather.WeatherUiState
 
 @Composable
@@ -18,6 +19,7 @@ fun WeatherTopBar(
     scrollBehavior: TopAppBarScrollBehavior,
     uiState: WeatherUiState,
     onOpenDrawer: () -> Unit,
+    onUiEvent: (WeatherUiEvent) -> Unit,
 ) {
     TopAppBar(
         title = { },
@@ -28,7 +30,8 @@ fun WeatherTopBar(
             ),
         actions = {
             IconButton(
-                onClick = {},
+                onClick = { onUiEvent(WeatherUiEvent.ToggleSaved) },
+                enabled = uiState.isSavedEnabled,
             ) {
                 val resId =
                     if (uiState.isSaved) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_boarder

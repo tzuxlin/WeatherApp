@@ -18,9 +18,11 @@ moshi = "1.15.2"
 navigation3RuntimeVersion = "1.1.0-rc01"
 navigation3Ui = "1.1.0-rc01"
 retrofit = "3.0.0"
+roomCompiler = "2.8.4"
+roomKtx = "2.8.4"
+roomRuntime = "2.8.4"
 runtime = "1.10.6"
 navigation3Runtime = "1.0.1"
-navigationCommonKtx = "2.9.7"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -31,6 +33,9 @@ androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecy
 androidx-material3 = { module = "androidx.compose.material3:material3" }
 androidx-navigation3-runtime-v110rc01 = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3RuntimeVersion" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3Ui" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }

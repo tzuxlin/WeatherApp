@@ -18,8 +18,8 @@ class GeoRepositoryImpl @Inject constructor(
                 val cities = locations.map {
                     City(
                         name = it.name,
-                        lat = it.lat.toString(),
-                        lon = it.lon.toString(),
+                        lat = it.lat,
+                        lon = it.lon,
                         country = it.country,
                     )
                 }

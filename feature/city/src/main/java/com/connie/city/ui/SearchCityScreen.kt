@@ -1,32 +1,24 @@
 package com.connie.city.ui
 
-import android.util.Log
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,10 +27,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,13 +46,14 @@ data object SearchNavKey : NavKey
 
 @Composable
 fun SearchCityScreen(
+    onBackClick: () -> Unit,
     openWeatherDetail: (City) -> Unit,
     viewModel: SearchCityViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     SearchCityScreenContent(
         uiState = uiState,
-        onBackClick = {},
+        onBackClick = onBackClick,
         onQueryChange = { viewModel.onEvent(SearchCityEvent.OnQueryChange(it)) },
         onSearch = {},
         onCityClick = {
@@ -78,7 +71,7 @@ fun SearchCityScreenContent(
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
     onCityClick: (City) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         modifier = modifier,
@@ -147,7 +140,6 @@ private fun CitySearchBar(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
             .focusRequester(focusRequester),
     )
 }
@@ -186,20 +178,15 @@ private fun CityList(
     cities: List<City>,
     leadingIcon: @Composable () -> Unit,
     onCityClick: (City) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors()
-    ) {
-        Column {
-            cities.forEach { city ->
-                CityListItem(
-                    city = city,
-                    leadingIcon = leadingIcon,
-                    onClick = { onCityClick(city) }
-                )
-            }
+    Column(modifier = modifier.fillMaxWidth()) {
+        cities.forEach { city ->
+            CityListItem(
+                city = city,
+                leadingIcon = leadingIcon,
+                onClick = { onCityClick(city) }
+            )
         }
     }
 }
@@ -209,7 +196,7 @@ private fun CityListItem(
     city: City,
     leadingIcon: @Composable () -> Unit,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     ListItem(
         modifier = modifier.clickable(onClick = onClick),
@@ -222,7 +209,7 @@ private fun CityListItem(
             }
             Text(text = subtitleText)
         },
-        leadingContent = leadingIcon
+        leadingContent = leadingIcon,
     )
 }
 
@@ -230,27 +217,28 @@ private fun CityListItem(
 private fun EmptySearchState() {
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp),
-        contentAlignment = Alignment.Center
+            .fillMaxWidth()
+            .padding(24.dp),
+        contentAlignment = Alignment.Center,
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_search),
-                contentDescription = null
+                contentDescription = null,
             )
             Text(
                 text = stringResource(com.connie.city.R.string.city__search_for_a_city),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold,
             )
             Text(
                 text = stringResource(com.connie.city.R.string.city__find_the_weather_for),
+                textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -265,9 +253,9 @@ private fun SearchCityScreenContentResultPreview() {
             query = "to",
             searchResults = ViewState.Success(
                 persistentListOf(
-                    City("Taipei", "", "", "TW"),
+                    City("Taipei", "TW", 0.0, 0.0),
                 )
-            )
+            ),
         ),
         onBackClick = {},
         onQueryChange = {},

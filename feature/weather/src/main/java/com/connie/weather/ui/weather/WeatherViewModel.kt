@@ -7,8 +7,11 @@ import androidx.lifecycle.viewModelScope
 import com.connie.domain.model.City
 import com.connie.domain.model.ViewState
 import com.connie.domain.model.Weather
+import com.connie.domain.repository.CityRepository
 import com.connie.domain.repository.WeatherRepository
 import com.connie.domain.usecase.GetDailyForecastUseCase
+import com.connie.domain.usecase.GetDefaultCityUseCase
+import com.connie.domain.usecase.ToggleSavedCityUseCase
 import com.connie.domain.util.TimeHelper
 import com.connie.weather.mapper.OpenWeatherResolver
 import com.connie.weather.mapper.toDegree
@@ -21,9 +24,14 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -33,33 +41,77 @@ import javax.inject.Inject
 class WeatherViewModel @AssistedInject constructor(
     @Assisted private val weatherNavKey: WeatherNavKey,
     private val getDailyForecastUseCase: GetDailyForecastUseCase,
+    private val getDefaultCityUseCase: GetDefaultCityUseCase,
+    private val toggleSavedCityUseCase: ToggleSavedCityUseCase,
+    private val cityRepository: CityRepository,
     private val weatherRepository: WeatherRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(WeatherUiState())
     val uiState: StateFlow<WeatherUiState> = _uiState.asStateFlow()
 
-    private var fetchDataJob: Job? = null
+    private val _effect = MutableSharedFlow<WeatherUiEffect>()
+    val effect: SharedFlow<WeatherUiEffect> = _effect.asSharedFlow()
 
-    fun fetchData() {
+    private var fetchDataJob: Job? = null
+    private lateinit var city: City
+
+    init {
+        fetchData()
+    }
+
+    fun onUiEvent(event: WeatherUiEvent) {
+        when (event) {
+            WeatherUiEvent.ToggleSaved -> {
+                viewModelScope.launch {
+                    val canToggle = toggleSavedCityUseCase.invoke(city)
+                    if (!canToggle) {
+                        _effect.emit(WeatherUiEffect.SavedLocationsLimitReached)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun fetchData() {
         fetchDataJob?.cancel()
         fetchDataJob = viewModelScope.launch {
-            val city = weatherNavKey.city ?: City("Taipei", "25.0478", "121.5319", "")
-            Log.d("Connie", "$weatherNavKey, $city")
+            Log.d("Connie", "weather vm key ${weatherNavKey.city}")
+            city = weatherNavKey.city ?: getDefaultCityUseCase.invoke() ?: run {
+                updateErrorState()
+                return@launch
+            }
+            Log.d("Connie", "weather vm fetch $city")
+            updateCurrentWeatherSavedStatus()
             awaitAll(
-                async { updateCurrentWeather(city) },
-                async { updateHourlyForecast(city) },
-                async { updateDailyForecast(city) },
+                async { updateCurrentWeather() },
+                async { updateHourlyForecast() },
+                async { updateDailyForecast() },
             )
             onDataUpdated()
         }
     }
 
-    private suspend fun updateCurrentWeather(city: City) {
+    private fun updateCurrentWeatherSavedStatus() {
+        viewModelScope.launch {
+            cityRepository.getIsCitySavedFlow(city)
+                .collectLatest { isSaved ->
+                    Log.d("Connie", "weather vm isSaved $isSaved, $city")
+                    _uiState.update {
+                        it.copy(
+                            isSaved = isSaved,
+                            isSavedEnabled = true,
+                        )
+                    }
+                }
+        }
+    }
+
+    private suspend fun updateCurrentWeather() {
         weatherRepository.getCurrentWeatherFlow(city)
             .onStart { _uiState.update { it.copy(currentWeather = ViewState.Loading) } }
             .collect { response ->
                 if (response == null) {
-                    _uiState.update { it.copy(currentWeather = ViewState.Error("No data")) }
+                    updateErrorState()
                 } else {
                     val isDaytime = response.timestamp in response.sunrise..response.sunset
                     _uiState.update {
@@ -72,12 +124,12 @@ class WeatherViewModel @AssistedInject constructor(
             }
     }
 
-    private suspend fun updateHourlyForecast(city: City) {
+    private suspend fun updateHourlyForecast() {
         weatherRepository.getForecastFlow(lat = city.lat, lon = city.lon)
             .onStart { _uiState.update { it.copy(hourlyForecast = ViewState.Loading) } }
             .collect { response ->
                 val hourlyForecastState = if (response == null) {
-                    ViewState.Error("No data")
+                    ViewState.Error()
                 } else {
                     ViewState.Success(
                         buildHourlyForecastState(response)
@@ -87,12 +139,12 @@ class WeatherViewModel @AssistedInject constructor(
             }
     }
 
-    private suspend fun updateDailyForecast(city: City) {
+    private suspend fun updateDailyForecast() {
         getDailyForecastUseCase.invoke(city)
             .onStart { _uiState.update { it.copy(dailyForecast = ViewState.Loading) } }
             .collect { response ->
                 val dailyForecastState = if (response == null) {
-                    ViewState.Error("No data")
+                    ViewState.Error()
                 } else {
                     ViewState.Success(buildDailyForecastState(response))
                 }
@@ -103,6 +155,19 @@ class WeatherViewModel @AssistedInject constructor(
     private fun onDataUpdated() {
         val updatedOn = TimeHelper.now().format(TimeHelper.hourMinuteFormatter)
         _uiState.update { it.copy(updatedOn = updatedOn) }
+    }
+
+    private fun updateErrorState() {
+        _uiState.update {
+            it.copy(
+                currentWeather = ViewState.Error(),
+                hourlyForecast = ViewState.Error(),
+                dailyForecast = ViewState.Error(),
+                updatedOn = "",
+                isSaved = false,
+                isSavedEnabled = false,
+            )
+        }
     }
 
     private fun buildWeatherState(weather: Weather): CurrentWeatherState {

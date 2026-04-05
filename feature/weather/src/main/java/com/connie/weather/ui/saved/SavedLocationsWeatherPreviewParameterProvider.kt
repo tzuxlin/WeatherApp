@@ -12,14 +12,14 @@ class SavedLocationsWeatherPreviewParameterProvider :
             weathers = ViewState.Success(
                 persistentListOf(
                     CityWeatherState(
-                        city = City("Taipei", "", "", ""),
+                        city = City("Taipei", "", 0.0, 0.0),
                         temperature = "28°",
                         maxTemperature = "30°",
                         minTemperature = "22°",
                         main = "Cloudy"
                     ),
                     CityWeatherState(
-                        city = City("Tokyo", "", "", ""),
+                        city = City("Tokyo", "", 0.0, 0.0),
                         temperature = "16°",
                         maxTemperature = "19°",
                         minTemperature = "5°",
@@ -28,6 +28,7 @@ class SavedLocationsWeatherPreviewParameterProvider :
                 )
             )
         ),
+        SavedLocationsWeatherUiState(weathers = ViewState.Success(persistentListOf())),
         SavedLocationsWeatherUiState(weathers = ViewState.Loading),
         SavedLocationsWeatherUiState(weathers = ViewState.Error("Unable to get the data, please try again later.")),
     )

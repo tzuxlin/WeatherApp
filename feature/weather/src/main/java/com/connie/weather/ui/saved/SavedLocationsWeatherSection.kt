@@ -1,5 +1,6 @@
 package com.connie.weather.ui.saved
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,19 +38,21 @@ import com.connie.weather.R
 @Composable
 fun SavedLocationsWeatherSection(
     onClickCity: (City) -> Unit,
+    modifier: Modifier,
     viewModel: SavedLocationsWeatherViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    SavedLocationsWeatherSectionContent(uiState, onClickCity)
+    SavedLocationsWeatherSectionContent(uiState, modifier, onClickCity)
 }
 
 @Composable
 private fun SavedLocationsWeatherSectionContent(
     uiState: SavedLocationsWeatherUiState,
-    onClickCity: (City) -> Unit,
+    modifier: Modifier = Modifier,
+    onClickCity: (City) -> Unit = {},
 ) {
     Column(
-        modifier = Modifier.padding(8.dp),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         when (val favorites = uiState.weathers) {
@@ -59,30 +63,42 @@ private fun SavedLocationsWeatherSectionContent(
             }
 
             is ViewState.Success -> {
-                favorites.data.forEach {
-                    WeatherPreviewItem(it, onClickCity)
+                if (favorites.data.isEmpty()) {
+                    Message(
+                        stringResource(R.string.weather__no_saved_locations_yet)
+                    )
+                } else {
+                    favorites.data.forEach {
+                        WeatherPreviewItem(it, onClickCity)
+                    }
                 }
             }
 
             is ViewState.Error -> {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        modifier = Modifier.size(16.dp),
-                        painter = painterResource(com.connie.ui.R.drawable.ic_warning),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        text = favorites.message,
-                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.secondary)
-                    )
-                }
+                Message(iconRes = com.connie.ui.R.drawable.ic_warning, text = favorites.message)
             }
         }
+    }
+}
+
+@Composable
+private fun Message(text: String, @DrawableRes iconRes: Int? = null) {
+    Row {
+        if (iconRes != null) {
+            Icon(
+                modifier = Modifier.size(16.dp),
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+        Text(
+            modifier = Modifier
+                .fillMaxWidth(),
+            text = text,
+            style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.secondary)
+        )
     }
 }
 
@@ -96,8 +112,8 @@ private fun WeatherPreviewItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(16.dp)
             .clickable { onClickCity(weather.city) }
+            .padding(16.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -147,6 +163,6 @@ private fun PreviewWeatherPreviewSection(
     uiState: SavedLocationsWeatherUiState,
 ) {
     MaterialTheme {
-        SavedLocationsWeatherSectionContent(uiState) {}
+        SavedLocationsWeatherSectionContent(uiState)
     }
 }

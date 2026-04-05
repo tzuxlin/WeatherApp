@@ -4,4 +4,6 @@
     <string name="weather__max_and_min_temperature">%s / %s</string>
     <string name="weather__open_weather">OpenWeather</string>
     <string name="weather__updated_on">Updated on %s</string>
+    <string name="weather__no_saved_locations_yet">No saved locations yet. Search for a city to save one.</string>
+    <string name="weather__you_can_only_save">You can only save up to 5 locations.</string>
 </resources>

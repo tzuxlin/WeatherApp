@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface WeatherRepository {
     fun getCurrentWeatherFlow(city: City): Flow<Weather?>
-    fun getForecastFlow(lon: String, lat: String): Flow<List<Weather>>
+    fun getForecastFlow(lon: Double, lat: Double): Flow<List<Weather>>
 }

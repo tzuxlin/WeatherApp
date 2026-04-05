@@ -1,7 +1,9 @@
 package com.connie.data.di
 
+import com.connie.data.repository.CityRepositoryImpl
 import com.connie.data.repository.GeoRepositoryImpl
 import com.connie.data.repository.WeatherRepositoryImpl
+import com.connie.domain.repository.CityRepository
 import com.connie.domain.repository.GeoRepository
 import com.connie.domain.repository.WeatherRepository
 import dagger.Binds
@@ -12,7 +14,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class DataModule {
+abstract class RepositoryModule {
 
     @Binds
     @Singleton
@@ -25,4 +27,10 @@ abstract class DataModule {
     abstract fun bindGeoRepository(
         geoRepositoryImpl: GeoRepositoryImpl
     ): GeoRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCityRepository(
+        cityRepositoryImpl: CityRepositoryImpl
+    ): CityRepository
 }

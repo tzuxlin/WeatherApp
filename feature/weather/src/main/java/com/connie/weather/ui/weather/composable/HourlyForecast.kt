@@ -37,6 +37,8 @@ import kotlinx.collections.immutable.toPersistentList
 
 @Composable
 fun HourlyForecast(viewState: ViewState<PersistentList<ForecastState>>) {
+    if (viewState is ViewState.Error) return
+
     val lazyListState = rememberLazyListState()
 
     HorizontalFadingEdges(
@@ -56,10 +58,6 @@ fun HourlyForecast(viewState: ViewState<PersistentList<ForecastState>>) {
             contentPadding = PaddingValues(horizontal = 24.dp),
         ) {
             when (viewState) {
-                is ViewState.Error -> {
-
-                }
-
                 ViewState.Loading -> {
                     repeat(6) {
                         item {

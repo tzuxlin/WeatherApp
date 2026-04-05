@@ -10,24 +10,29 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.connie.domain.model.City
 import com.connie.domain.model.ViewState
 import com.connie.ui.composable.VerticalFadingEdges
 import com.connie.ui.composable.rememberFadeVisibility
+import com.connie.weather.R
 import com.connie.weather.ui.weather.composable.HourlyForecast
 import com.connie.weather.ui.weather.composable.CurrentWeatherInfo
 import com.connie.weather.ui.weather.composable.WeatherFooter
@@ -45,30 +50,47 @@ fun WeatherScreen(
     onOpenDrawer: () -> Unit,
 ) {
     val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val limitReachedMessage = stringResource(R.string.weather__you_can_only_save)
+
     LaunchedEffect(Unit) {
-        Log.d("Connie", "fetch data")
-        weatherViewModel.fetchData()
+        weatherViewModel.effect.collect {
+            when (it) {
+                is WeatherUiEffect.SavedLocationsLimitReached -> {
+                    snackbarHostState.showSnackbar(limitReachedMessage)
+                }
+            }
+        }
     }
-    WeatherScreenContent(uiState) { onOpenDrawer() }
+    WeatherScreenContent(
+        uiState = uiState,
+        snackbarHostState = snackbarHostState,
+        onOpenDrawer = onOpenDrawer,
+        onUiEvent = weatherViewModel::onUiEvent,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WeatherScreenContent(
     uiState: WeatherUiState,
+    snackbarHostState: SnackbarHostState,
     onOpenDrawer: () -> Unit = {},
+    onUiEvent: (WeatherUiEvent) -> Unit = {},
 ) {
     val lazyListState = rememberLazyListState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     MaterialTheme(colorScheme = if (uiState.isDaytime) lightColorScheme() else darkColorScheme()) {
         Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 WeatherTopBar(
                     scrollBehavior = scrollBehavior,
                     uiState = uiState,
                     onOpenDrawer = onOpenDrawer,
+                    onUiEvent = onUiEvent,
                 )
             }
         ) { paddingValues ->
@@ -140,11 +162,12 @@ private fun PreviewWeatherScreenContent() {
     }.toPersistentList()
 
     WeatherScreenContent(
-        WeatherUiState(
+        uiState = WeatherUiState(
             currentWeather = ViewState.Success(currentWeatherState),
             hourlyForecast = ViewState.Success(hourly),
             dailyForecast = ViewState.Success(daily),
             updatedOn = "00:00"
-        )
+        ),
+        snackbarHostState = SnackbarHostState(),
     )
 }

@@ -58,6 +58,9 @@ fun WeatherAppNavDisplay() {
 
                     is SearchNavKey -> NavEntry(key) {
                         SearchCityScreen(
+                            onBackClick = {
+                                backStack.removeLastOrNull()
+                            },
                             openWeatherDetail = {
                                 backStack.navigateToSingleTask(WeatherNavKey(it))
                             },

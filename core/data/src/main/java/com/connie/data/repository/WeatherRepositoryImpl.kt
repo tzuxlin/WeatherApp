@@ -8,26 +8,23 @@ import com.connie.network.model.CurrentWeatherResponse
 import com.connie.network.model.ForecastResponse
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import java.math.BigDecimal
 import javax.inject.Inject
 
 class WeatherRepositoryImpl @Inject constructor(
     private val service: WeatherApiService
 ) : WeatherRepository {
     override fun getCurrentWeatherFlow(city: City) = flow<Weather?> {
-        val responseBody = requestCurrentWeather(
+        val response = service.getCurrentWeather(
             city = city.name,
             lat = city.lat,
             lon = city.lon,
         )
-            ?: requestCurrentWeather(lat = city.lat, lon = city.lon)
-            ?: requestCurrentWeather(city = city.name)
-            ?: error("Failed to fetch the data")
+        val responseBody = response.body() ?: error("Failed to fetch the data")
         emit(buildWeather(responseBody))
     }.catch { emit(null) }
 
 
-    override fun getForecastFlow(lon: String, lat: String) = flow {
+    override fun getForecastFlow(lon: Double, lat: Double) = flow {
         val response = service.getForecast(lat = lat, lon = lon)
         val responseBody = response.body()
         if (response.isSuccessful && responseBody != null) {
@@ -37,31 +34,12 @@ class WeatherRepositoryImpl @Inject constructor(
         }
     }.catch { emit(emptyList()) }
 
-
-    private suspend fun requestCurrentWeather(
-        city: String? = null,
-        lat: String? = null,
-        lon: String? = null,
-    ): CurrentWeatherResponse? {
-        val response = service.getCurrentWeather(
-            city = city,
-            lat = lat,
-            lon = lon,
-        )
-        val body = response.body()
-        return if (response.isSuccessful && body != null) {
-            body
-        } else {
-            null
-        }
-    }
-
     private fun buildWeather(response: CurrentWeatherResponse): Weather {
         return Weather(
             city = City(
                 name = response.name,
-                lat = BigDecimal(response.coord.lat).toString(),
-                lon = BigDecimal(response.coord.lon).toString(),
+                lat = response.coord.lat,
+                lon = response.coord.lon,
                 country = response.sys.country,
             ),
             temperature = response.main.temp,
@@ -85,8 +63,8 @@ class WeatherRepositoryImpl @Inject constructor(
             Weather(
                 city = City(
                     name = response.city.name,
-                    lat = response.city.coord.toString(),
-                    lon = response.city.coord.lon.toString(),
+                    lat = response.city.coord.lat,
+                    lon = response.city.coord.lon,
                     country = response.city.country,
                 ),
                 temperature = it.main.temp,
