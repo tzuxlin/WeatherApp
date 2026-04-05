@@ -14,6 +14,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -93,35 +94,42 @@ private fun WeatherScreenContent(
                 )
             }
         ) { paddingValues ->
-            VerticalFadingEdges(
-                fadeVisibility = rememberFadeVisibility(lazyListState),
-                fadeHeight = 48.dp,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = {
+                    onUiEvent(WeatherUiEvent.Refresh)
+                },
+                modifier = Modifier.fillMaxSize(),
             ) {
-                LazyColumn(
-                    state = lazyListState,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    contentPadding = paddingValues,
+                VerticalFadingEdges(
+                    fadeVisibility = rememberFadeVisibility(lazyListState),
+                    fadeHeight = 48.dp,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
                 ) {
-                    item {
-                        CurrentWeatherInfo(weatherViewState = uiState.currentWeather)
-                    }
-                    item {
-                        HourlyForecast(uiState.hourlyForecast)
-                        Spacer(modifier = Modifier.size(24.dp))
-                    }
-                    dailyForecastItems(uiState.dailyForecast)
-
-                    if (uiState.updatedOn.isNotEmpty()) {
+                    LazyColumn(
+                        state = lazyListState,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        contentPadding = paddingValues,
+                    ) {
                         item {
-                            WeatherFooter(uiState.updatedOn)
+                            CurrentWeatherInfo(weatherViewState = uiState.currentWeather)
+                        }
+                        item {
+                            HourlyForecast(uiState.hourlyForecast)
+                            Spacer(modifier = Modifier.size(24.dp))
+                        }
+                        dailyForecastItems(uiState.dailyForecast)
+
+                        if (uiState.updatedOn.isNotEmpty()) {
+                            item {
+                                WeatherFooter(uiState.updatedOn)
+                            }
                         }
                     }
                 }
             }
-
         }
     }
 }

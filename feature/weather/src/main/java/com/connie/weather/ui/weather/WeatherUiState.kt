@@ -4,6 +4,7 @@ import com.connie.domain.model.ViewState
 import kotlinx.collections.immutable.PersistentList
 
 data class WeatherUiState(
+    val isRefreshing: Boolean = false,
     val isDaytime: Boolean = false,
     val isSaved: Boolean = false,
     val isSavedEnabled: Boolean = false,

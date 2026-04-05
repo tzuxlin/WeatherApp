@@ -65,6 +65,13 @@ class WeatherViewModel @AssistedInject constructor(
                     }
                 }
             }
+
+            WeatherUiEvent.Refresh -> {
+                _uiState.update {
+                    it.copy(isRefreshing = true)
+                }
+                fetchData()
+            }
         }
     }
 
@@ -147,7 +154,12 @@ class WeatherViewModel @AssistedInject constructor(
 
     private fun onDataUpdated() {
         val updatedOn = TimeHelper.now().format(TimeHelper.hourMinuteFormatter)
-        _uiState.update { it.copy(updatedOn = updatedOn) }
+        _uiState.update {
+            it.copy(
+                isRefreshing = false,
+                updatedOn = updatedOn,
+            )
+        }
     }
 
     private fun updateErrorState() {
