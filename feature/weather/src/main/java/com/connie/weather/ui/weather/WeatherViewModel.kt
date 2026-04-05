@@ -1,7 +1,5 @@
 package com.connie.weather.ui.weather
 
-import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.connie.domain.model.City
@@ -30,12 +28,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel(assistedFactory = WeatherViewModel.Factory::class)
 class WeatherViewModel @AssistedInject constructor(
@@ -75,12 +71,10 @@ class WeatherViewModel @AssistedInject constructor(
     private fun fetchData() {
         fetchDataJob?.cancel()
         fetchDataJob = viewModelScope.launch {
-            Log.d("Connie", "weather vm key ${weatherNavKey.city}")
             city = weatherNavKey.city ?: getDefaultCityUseCase.invoke() ?: run {
                 updateErrorState()
                 return@launch
             }
-            Log.d("Connie", "weather vm fetch $city")
             updateCurrentWeatherSavedStatus()
             awaitAll(
                 async { updateCurrentWeather() },
@@ -95,7 +89,6 @@ class WeatherViewModel @AssistedInject constructor(
         viewModelScope.launch {
             cityRepository.getIsCitySavedFlow(city)
                 .collectLatest { isSaved ->
-                    Log.d("Connie", "weather vm isSaved $isSaved, $city")
                     _uiState.update {
                         it.copy(
                             isSaved = isSaved,
@@ -128,7 +121,7 @@ class WeatherViewModel @AssistedInject constructor(
         weatherRepository.getForecastFlow(lat = city.lat, lon = city.lon)
             .onStart { _uiState.update { it.copy(hourlyForecast = ViewState.Loading) } }
             .collect { response ->
-                val hourlyForecastState = if (response == null) {
+                val hourlyForecastState = if (response.isEmpty()) {
                     ViewState.Error()
                 } else {
                     ViewState.Success(
@@ -143,7 +136,7 @@ class WeatherViewModel @AssistedInject constructor(
         getDailyForecastUseCase.invoke(city)
             .onStart { _uiState.update { it.copy(dailyForecast = ViewState.Loading) } }
             .collect { response ->
-                val dailyForecastState = if (response == null) {
+                val dailyForecastState = if (response.isEmpty()) {
                     ViewState.Error()
                 } else {
                     ViewState.Success(buildDailyForecastState(response))
