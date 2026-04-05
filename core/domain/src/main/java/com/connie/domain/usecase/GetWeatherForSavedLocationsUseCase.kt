@@ -1,5 +1,6 @@
 package com.connie.domain.usecase
 
+import com.connie.domain.model.City
 import com.connie.domain.model.Weather
 import com.connie.domain.repository.WeatherRepository
 import kotlinx.coroutines.flow.Flow
@@ -12,9 +13,10 @@ class GetWeatherForSavedLocationsUseCase @Inject constructor(
 ) {
     fun invoke(): Flow<List<Weather>> {
         // TODO update logic
-        val locations = listOf("Taipei", "Taichung", "Tainan", "Tokyo", "Osaka", "Texas")
+        val city = City("", "25.0478", "121.5319", "")
+        val locations = listOf(city, city, city)
         return combine(locations.map { weatherRepository.getCurrentWeatherFlow(it) }) {
-            it.toList()
+            it.filterNotNull().toList()
         }
     }
 }

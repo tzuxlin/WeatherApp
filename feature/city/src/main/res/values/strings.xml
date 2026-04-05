@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="city__search_for_a_city">Search for a city</string>
+    <string name="city__find_the_weather_for">Find the weather for Taipei, Tokyo, New York and more</string>
+</resources>

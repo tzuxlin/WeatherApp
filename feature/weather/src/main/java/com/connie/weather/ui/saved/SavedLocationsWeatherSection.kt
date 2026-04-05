@@ -28,13 +28,14 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.connie.domain.model.City
 import com.connie.domain.model.ViewState
 import com.connie.ui.composable.shimmerSkeleton
 import com.connie.weather.R
 
 @Composable
 fun SavedLocationsWeatherSection(
-    onClickCity: (String) -> Unit,
+    onClickCity: (City) -> Unit,
     viewModel: SavedLocationsWeatherViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -44,7 +45,7 @@ fun SavedLocationsWeatherSection(
 @Composable
 private fun SavedLocationsWeatherSectionContent(
     uiState: SavedLocationsWeatherUiState,
-    onClickCity: (String) -> Unit,
+    onClickCity: (City) -> Unit,
 ) {
     Column(
         modifier = Modifier.padding(8.dp),
@@ -88,7 +89,7 @@ private fun SavedLocationsWeatherSectionContent(
 @Composable
 private fun WeatherPreviewItem(
     weather: CityWeatherState,
-    onClickCity: (String) -> Unit,
+    onClickCity: (City) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -96,12 +97,12 @@ private fun WeatherPreviewItem(
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(16.dp)
-            .clickable { onClickCity(weather.cityName) }
+            .clickable { onClickCity(weather.city) }
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 modifier = Modifier.weight(1f),
-                text = weather.cityName,
+                text = weather.city.name,
                 style = MaterialTheme.typography.bodyLarge,
             )
             Text(

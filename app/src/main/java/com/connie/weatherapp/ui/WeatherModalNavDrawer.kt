@@ -24,29 +24,41 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
+import com.connie.city.ui.SearchNavKey
 import com.connie.ui.R
 import com.connie.weather.ui.saved.SavedLocationsWeatherSection
+import com.connie.weather.ui.weather.WeatherNavKey
 import kotlinx.coroutines.launch
+
+sealed interface DrawerUiEvent {
+    data class Navigate(val key: NavKey): DrawerUiEvent
+}
 
 @Composable
 fun WeatherModalNavDrawer(
     drawerState: DrawerState,
+    onEvent: (DrawerUiEvent) -> Unit,
     content: @Composable () -> Unit,
 ) {
     ModalNavigationDrawer(
         drawerState = drawerState,
-        drawerContent = { WeatherDrawerContent(drawerState) }
+        drawerContent = { WeatherDrawerContent(drawerState, onEvent) }
     ) {
         content()
     }
 }
 
 @Composable
-private fun WeatherDrawerContent(drawerState: DrawerState) {
+private fun WeatherDrawerContent(
+    drawerState: DrawerState,
+    onEvent: (DrawerUiEvent) -> Unit,
+) {
     val scope = rememberCoroutineScope()
     ModalDrawerSheet {
         DrawerSearchEntry(
             onClick = {
+                onEvent(DrawerUiEvent.Navigate(SearchNavKey))
                 scope.launch { drawerState.close() }
             }
         )
@@ -56,6 +68,7 @@ private fun WeatherDrawerContent(drawerState: DrawerState) {
             stringRes = com.connie.weatherapp.R.string.drawer__saved,
         )
         SavedLocationsWeatherSection(onClickCity = {
+            onEvent(DrawerUiEvent.Navigate(WeatherNavKey(it)))
             scope.launch { drawerState.close() }
         })
 

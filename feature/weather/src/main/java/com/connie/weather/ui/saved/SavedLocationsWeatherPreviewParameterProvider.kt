@@ -1,6 +1,7 @@
 package com.connie.weather.ui.saved
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import com.connie.domain.model.City
 import com.connie.domain.model.ViewState
 import kotlinx.collections.immutable.persistentListOf
 
@@ -11,14 +12,14 @@ class SavedLocationsWeatherPreviewParameterProvider :
             weathers = ViewState.Success(
                 persistentListOf(
                     CityWeatherState(
-                        cityName = "Taipei",
+                        city = City("Taipei", "", "", ""),
                         temperature = "28°",
                         maxTemperature = "30°",
                         minTemperature = "22°",
                         main = "Cloudy"
                     ),
                     CityWeatherState(
-                        cityName = "Tokyo",
+                        city = City("Tokyo", "", "", ""),
                         temperature = "16°",
                         maxTemperature = "19°",
                         minTemperature = "5°",

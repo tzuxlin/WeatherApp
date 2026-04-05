@@ -20,13 +20,13 @@ data class ForecastItem(
     @Json(name = "weather")
     val weather: List<WeatherResponse>,
     @Json(name = "clouds")
-    val clouds: CloudsResponse,
+    val clouds: CloudsResponse?,
     @Json(name = "wind")
-    val wind: WindResponse,
+    val wind: WindResponse?,
     @Json(name = "visibility")
-    val visibility: Int,
+    val visibility: Int?,
     @Json(name = "pop")
-    val probabilityOfPrecipitation: Double,
+    val probabilityOfPrecipitation: Double?,
     @Json(name = "dt_txt")
-    val dateTimeText: String
+    val dateTimeText: String?,
 )

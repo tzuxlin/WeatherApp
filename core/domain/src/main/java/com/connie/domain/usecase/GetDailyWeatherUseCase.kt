@@ -1,5 +1,6 @@
 package com.connie.domain.usecase
 
+import com.connie.domain.model.City
 import com.connie.domain.model.Weather
 import com.connie.domain.repository.WeatherRepository
 import com.connie.domain.util.TimeHelper
@@ -10,8 +11,8 @@ import javax.inject.Inject
 class GetDailyForecastUseCase @Inject constructor(
     private val weatherRepository: WeatherRepository,
 ) {
-    fun invoke(query: String): Flow<List<Weather>> {
-        return weatherRepository.getForecastFlow(query)
+    fun invoke(city: City): Flow<List<Weather>> {
+        return weatherRepository.getForecastFlow(lat = city.lat, lon = city.lon)
             .map { forecastItems ->
                 forecastItems
                     .groupBy { weather ->

@@ -46,7 +46,7 @@ class SavedLocationsWeatherViewModel @Inject constructor(
 
     private fun buildWeatherState(weather: Weather): CityWeatherState {
         return CityWeatherState(
-            cityName = weather.cityName,
+            city = weather.city,
             main = weather.main,
             temperature = weather.temperature.toDegree(),
             minTemperature = weather.minTemperature.toDegree(),

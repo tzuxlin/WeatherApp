@@ -1,6 +1,8 @@
 package com.connie.data.di
 
+import com.connie.data.repository.GeoRepositoryImpl
 import com.connie.data.repository.WeatherRepositoryImpl
+import com.connie.domain.repository.GeoRepository
 import com.connie.domain.repository.WeatherRepository
 import dagger.Binds
 import dagger.Module
@@ -17,4 +19,10 @@ abstract class DataModule {
     abstract fun bindWeatherRepository(
         weatherRepositoryImpl: WeatherRepositoryImpl
     ): WeatherRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGeoRepository(
+        geoRepositoryImpl: GeoRepositoryImpl
+    ): GeoRepository
 }

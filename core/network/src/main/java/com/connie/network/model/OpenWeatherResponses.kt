@@ -11,7 +11,7 @@ data class CoordResponse(
 
 @JsonClass(generateAdapter = true)
 data class WeatherResponse(
-    val id: Int,
+    val id: Int?,
     val main: String,
     val description: String,
     val icon: String,
@@ -26,12 +26,12 @@ data class MainResponse(
     val tempMin: Double,
     @Json(name = "temp_max")
     val tempMax: Double,
-    val pressure: Int,
-    val humidity: Int,
+    val pressure: Int?,
+    val humidity: Int?,
     @Json(name = "sea_level")
-    val seaLevel: Int,
+    val seaLevel: Int?,
     @Json(name = "grnd_level")
-    val groundLevel: Int,
+    val groundLevel: Int?,
 )
 
 @JsonClass(generateAdapter = true)
@@ -47,18 +47,15 @@ data class CloudsResponse(
 
 @JsonClass(generateAdapter = true)
 data class SysResponse(
-    val type: Int,
-    val id: Long,
     val country: String,
     val sunrise: Long,
     val sunset: Long,
 )
 
-
 @JsonClass(generateAdapter = true)
 data class CityResponse(
     @Json(name = "id")
-    val id: Int,
+    val id: Int?,
     @Json(name = "name")
     val name: String,
     @Json(name = "coord")

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.connie.domain.model.ViewState
+import com.connie.ui.composable.shimmerSkeleton
 import com.connie.weather.R
 import com.connie.weather.ui.weather.CurrentWeatherState
 
@@ -38,11 +39,11 @@ fun CurrentWeatherInfo(
     Column(
         modifier = modifier.height(400.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
     ) {
         if (weather == null) {
-            EmptyCurrentWeatherInfo()
+            EmptyCurrentWeatherInfo(weatherViewState is ViewState.Loading)
         } else {
+            Spacer(modifier = Modifier.size(40.dp))
             AsyncImage(
                 modifier = Modifier
                     .size(108.dp)
@@ -92,21 +93,41 @@ fun CurrentWeatherInfo(
                     style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.secondary),
                 )
             }
+            Spacer(modifier = Modifier.size(16.dp))
+            Text("Local time: ${weather.main}")
         }
     }
 }
 
 @Composable
-private fun EmptyCurrentWeatherInfo() {
-    Box(
+private fun EmptyCurrentWeatherInfo(isLoading: Boolean) {
+    Column (
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = "--",
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.displaySmall.copy(color = MaterialTheme.colorScheme.secondary),
+        Spacer(modifier = Modifier.size(40.dp))
+        Box(
+            modifier = Modifier
+                .size(108.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.tertiaryContainer)
+                .shimmerSkeleton(isLoading),
         )
+        Spacer(modifier = Modifier.size(16.dp))
+        if (isLoading) {
+            Text(
+                text = "--",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.displaySmall.copy(color = MaterialTheme.colorScheme.secondary),
+            )
+        } else {
+            Text(
+                modifier = Modifier.padding(horizontal = 48.dp),
+                text = "Oops, something went wrong. Please try again later.",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.secondary),
+            )
+        }
     }
 }
 
@@ -130,8 +151,16 @@ private fun PreviewCurrentWeatherInfo() {
 
 @Preview(showBackground = true, widthDp = 300)
 @Composable
-private fun PreviewEmptyCurrentWeatherInfo() {
+private fun PreviewLoadingCurrentWeatherInfo() {
     MaterialTheme {
         CurrentWeatherInfo(ViewState.Loading)
+    }
+}
+
+@Preview(showBackground = true, widthDp = 300)
+@Composable
+private fun PreviewErrorCurrentWeatherInfo() {
+    MaterialTheme {
+        CurrentWeatherInfo(ViewState.Error(""))
     }
 }

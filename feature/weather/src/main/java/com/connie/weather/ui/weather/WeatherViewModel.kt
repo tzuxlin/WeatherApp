@@ -1,7 +1,10 @@
 package com.connie.weather.ui.weather
 
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.connie.domain.model.City
 import com.connie.domain.model.ViewState
 import com.connie.domain.model.Weather
 import com.connie.domain.repository.WeatherRepository
@@ -9,6 +12,9 @@ import com.connie.domain.usecase.GetDailyForecastUseCase
 import com.connie.domain.util.TimeHelper
 import com.connie.weather.mapper.OpenWeatherResolver
 import com.connie.weather.mapper.toDegree
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
@@ -23,8 +29,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
-class WeatherViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = WeatherViewModel.Factory::class)
+class WeatherViewModel @AssistedInject constructor(
+    @Assisted private val weatherNavKey: WeatherNavKey,
     private val getDailyForecastUseCase: GetDailyForecastUseCase,
     private val weatherRepository: WeatherRepository,
 ) : ViewModel() {
@@ -33,45 +40,22 @@ class WeatherViewModel @Inject constructor(
 
     private var fetchDataJob: Job? = null
 
-    // remove me
-    private val weather = Weather(
-        cityName = "Taipei",
-        countryCode = "",
-        temperature = 30.0,
-        feelsLike = 25.0,
-        minTemperature = 21.0,
-        maxTemperature = 32.0,
-        humidity = 89,
-        windSpeed = 10.0,
-        main = "Clouds",
-        description = "overcast clouds",
-        iconCode = "04n",
-        timestamp = 1775140122,
-        timeZone = 28800,
-        sunrise = 1775075221,
-        sunset = 1775120556,
-    )
-
-    init {
-        fetchData()
-    }
-
-    private fun fetchData() {
+    fun fetchData() {
         fetchDataJob?.cancel()
         fetchDataJob = viewModelScope.launch {
+            val city = weatherNavKey.city ?: City("Taipei", "25.0478", "121.5319", "")
+            Log.d("Connie", "$weatherNavKey, $city")
             awaitAll(
-                async { updateCurrentWeather() },
-                async { updateHourlyForecast() },
-                async { updateDailyForecast() },
+                async { updateCurrentWeather(city) },
+                async { updateHourlyForecast(city) },
+                async { updateDailyForecast(city) },
             )
             onDataUpdated()
         }
     }
 
-    private suspend fun updateCurrentWeather() {
-        val currentWeatherFlow = weatherRepository.getCurrentWeatherFlow("Tokyo")
-
-        currentWeatherFlow
+    private suspend fun updateCurrentWeather(city: City) {
+        weatherRepository.getCurrentWeatherFlow(city)
             .onStart { _uiState.update { it.copy(currentWeather = ViewState.Loading) } }
             .collect { response ->
                 if (response == null) {
@@ -88,9 +72,8 @@ class WeatherViewModel @Inject constructor(
             }
     }
 
-    private suspend fun updateHourlyForecast() {
-        val hourlyForecastFlow = weatherRepository.getForecastFlow("tokyo")
-        hourlyForecastFlow
+    private suspend fun updateHourlyForecast(city: City) {
+        weatherRepository.getForecastFlow(lat = city.lat, lon = city.lon)
             .onStart { _uiState.update { it.copy(hourlyForecast = ViewState.Loading) } }
             .collect { response ->
                 val hourlyForecastState = if (response == null) {
@@ -104,8 +87,8 @@ class WeatherViewModel @Inject constructor(
             }
     }
 
-    private suspend fun updateDailyForecast() {
-        getDailyForecastUseCase.invoke("tokyo")
+    private suspend fun updateDailyForecast(city: City) {
+        getDailyForecastUseCase.invoke(city)
             .onStart { _uiState.update { it.copy(dailyForecast = ViewState.Loading) } }
             .collect { response ->
                 val dailyForecastState = if (response == null) {
@@ -124,7 +107,7 @@ class WeatherViewModel @Inject constructor(
 
     private fun buildWeatherState(weather: Weather): CurrentWeatherState {
         return CurrentWeatherState(
-            cityName = weather.cityName,
+            cityName = weather.city.name,
             iconUrl = OpenWeatherResolver.resolveIcon(weather.iconCode),
             main = weather.main,
             description = weather.description,
@@ -167,5 +150,10 @@ class WeatherViewModel @Inject constructor(
                 weather = buildWeatherState(it),
             )
         }.toPersistentList()
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navKey: WeatherNavKey): WeatherViewModel
     }
 }
