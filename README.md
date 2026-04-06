@@ -2,6 +2,17 @@
 
 A modern, modular Android weather application built with Jetpack Compose, featuring city search, saved locations, and multi-day forecasts, while following Clean Architecture principles.
 
+## Quick Demo
+
+[Open the demo in a new tab](https://github.com/tzuxlin/WeatherApp/blob/3484bca7fa2aa8bacb3033606c3ff8f742e46eb2/weather-app-demo-300.gif) if you'd like to replay it from the beginning.
+
+<details>
+<summary>Click to preview the app demo</summary>
+
+<img src="https://github.com/tzuxlin/WeatherApp/blob/3484bca7fa2aa8bacb3033606c3ff8f742e46eb2/weather-app-demo-300.gif" alt="WeatherApp demo" />
+
+</details>
+
 ## Getting Started
 
 1. Clone the repository.
