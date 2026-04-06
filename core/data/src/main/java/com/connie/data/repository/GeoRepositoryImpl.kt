@@ -1,6 +1,5 @@
 package com.connie.data.repository
 
-import android.util.Log
 import com.connie.domain.model.City
 import com.connie.domain.repository.GeoRepository
 import com.connie.network.api.WeatherApiService
@@ -23,7 +22,6 @@ class GeoRepositoryImpl @Inject constructor(
                         country = it.country,
                     )
                 }
-                Log.d("Connie", "repo: $locations")
                 emit(cities)
             }
         }

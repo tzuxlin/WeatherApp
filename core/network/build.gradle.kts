@@ -56,11 +56,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.moshi)
