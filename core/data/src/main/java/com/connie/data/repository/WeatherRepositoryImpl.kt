@@ -23,7 +23,6 @@ class WeatherRepositoryImpl @Inject constructor(
         emit(buildWeather(responseBody))
     }.catch { emit(null) }
 
-
     override fun getForecastFlow(lon: Double, lat: Double) = flow {
         val response = service.getForecast(lat = lat, lon = lon)
         val responseBody = response.body()
