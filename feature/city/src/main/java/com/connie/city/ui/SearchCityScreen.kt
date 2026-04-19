@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -68,7 +69,7 @@ fun SearchCityScreen(
 @Composable
 fun SearchCityScreenContent(
     query: String,
-    searchResult: ViewState<PersistentList<City>>,
+    searchResult: ViewState<PersistentList<CityUiState>>,
     onBackClick: () -> Unit,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
@@ -83,7 +84,7 @@ fun SearchCityScreenContent(
                     CitySearchBar(
                         query = query,
                         onQueryChange = onQueryChange,
-                        onSearch = onSearch
+                        onSearch = onSearch,
                     )
                 },
                 navigationIcon = {
@@ -148,7 +149,7 @@ private fun CitySearchBar(
 
 @Composable
 private fun SearchResultContent(
-    searchResults: ViewState<PersistentList<City>>,
+    searchResults: ViewState<PersistentList<CityUiState>>,
     onCityClick: (City) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -172,23 +173,24 @@ private fun SearchResultContent(
             }
         }
     }
-
 }
 
 @Composable
 private fun CityList(
-    cities: PersistentList<City>,
+    cities: PersistentList<CityUiState>,
     leadingIcon: @Composable () -> Unit,
     onCityClick: (City) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        cities.forEach { city ->
-            CityListItem(
-                city = city,
-                leadingIcon = leadingIcon,
-                onClick = { onCityClick(city) }
-            )
+    LazyColumn (modifier = modifier.fillMaxWidth()) {
+        cities.forEach {
+            item(it.key) {
+                CityListItem(
+                    city = it.city,
+                    leadingIcon = leadingIcon,
+                    onClick = { onCityClick(it.city) }
+                )
+            }
         }
     }
 }
@@ -206,10 +208,7 @@ private fun CityListItem(
             Text(text = city.name)
         },
         supportingContent = {
-            val subtitleText = buildString {
-                append(city.country)
-            }
-            Text(text = subtitleText)
+            Text(text = city.country)
         },
         leadingContent = leadingIcon,
     )
@@ -253,7 +252,7 @@ private fun SearchCityScreenContentResultPreview() {
         query = "to",
         searchResult = ViewState.Success(
             persistentListOf(
-                City("Taipei", "TW", 0.0, 0.0),
+                CityUiState(key = "", city = City("Taipei", "TW", 0.0, 0.0)),
             )
         ),
         onBackClick = {},

@@ -6,7 +6,12 @@ import kotlinx.collections.immutable.PersistentList
 
 data class SearchCityUiState(
     val query: String = "",
-    val searchResults: ViewState<PersistentList<City>> = ViewState.Loading,
+    val searchResults: ViewState<PersistentList<CityUiState>> = ViewState.Loading,
+)
+
+data class CityUiState(
+    val key: String,
+    val city: City,
 )
 
 sealed interface SearchCityEvent {

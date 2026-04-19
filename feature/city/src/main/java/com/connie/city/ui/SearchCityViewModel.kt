@@ -2,6 +2,7 @@ package com.connie.city.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.connie.domain.model.City
 import com.connie.domain.model.ViewState
 import com.connie.domain.repository.GeoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,7 +55,7 @@ class SearchCityViewModel @Inject constructor(
                     geoRepository.getDirectGeocoding(query)
                 }
                 .map { cities ->
-                    cities.toPersistentList()
+                    cities.map(::buildCityUiState).toPersistentList()
                 }
                 .collectLatest { result ->
                     _uiState.update {
@@ -63,5 +64,11 @@ class SearchCityViewModel @Inject constructor(
                 }
         }
     }
+
+    private fun buildCityUiState(city: City): CityUiState =
+        CityUiState(
+            key = city.name + city.lat.toString() + city.lon.toString(),
+            city = city,
+        )
 
 }
