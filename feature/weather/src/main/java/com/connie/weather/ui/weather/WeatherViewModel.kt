@@ -82,7 +82,9 @@ class WeatherViewModel @AssistedInject constructor(
                 updateErrorState()
                 return@launch
             }
-            updateCurrentWeatherSavedStatus()
+            launch {
+                updateCurrentWeatherSavedStatus()
+            }
             awaitAll(
                 async { updateCurrentWeather() },
                 async { updateHourlyForecast() },
@@ -92,18 +94,16 @@ class WeatherViewModel @AssistedInject constructor(
         }
     }
 
-    private fun updateCurrentWeatherSavedStatus() {
-        viewModelScope.launch {
-            cityRepository.getIsCitySavedFlow(city)
-                .collectLatest { isSaved ->
-                    _uiState.update {
-                        it.copy(
-                            isSaved = isSaved,
-                            isSavedEnabled = true,
-                        )
-                    }
+    private suspend fun updateCurrentWeatherSavedStatus() {
+        cityRepository.getIsCitySavedFlow(city)
+            .collectLatest { isSaved ->
+                _uiState.update {
+                    it.copy(
+                        isSaved = isSaved,
+                        isSavedEnabled = true,
+                    )
                 }
-        }
+            }
     }
 
     private suspend fun updateCurrentWeather() {
