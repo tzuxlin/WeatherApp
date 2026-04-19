@@ -1,5 +1,6 @@
 package com.connie.ui.composable
 
+import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -26,16 +27,16 @@ fun Modifier.shimmerSkeleton(
     enabled: Boolean = true,
     width: Dp? = null,
     shape: Shape = RoundedCornerShape(8.dp),
+    infiniteTransition: InfiniteTransition = rememberShimmerTransition(),
 ): Modifier = composed {
     if (!enabled) {
         return@composed this
     }
     val widthModifier = if (width != null) {
-        Modifier.Companion.width(width)
-    } else Modifier.Companion
+        Modifier.width(width)
+    } else Modifier
 
-    val transition = rememberInfiniteTransition(label = "shimmer")
-    val translateAnim by transition.animateFloat(
+    val translateAnim by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1000f,
         animationSpec = infiniteRepeatable(
@@ -48,7 +49,7 @@ fun Modifier.shimmerSkeleton(
         label = "shimmer_translate"
     )
 
-    val brush = Brush.Companion.linearGradient(
+    val brush = Brush.linearGradient(
         colors = listOf(
             MaterialTheme.colorScheme.surfaceContainerHigh,
             MaterialTheme.colorScheme.surfaceContainer,
@@ -63,3 +64,7 @@ fun Modifier.shimmerSkeleton(
         .clip(shape)
         .background(brush)
 }
+
+@Composable
+fun rememberShimmerTransition(): InfiniteTransition =
+    rememberInfiniteTransition(label = "shimmer")

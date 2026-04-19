@@ -112,7 +112,7 @@ private fun EmptyCurrentWeatherInfo(isLoading: Boolean) {
                     .size(108.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .shimmerSkeleton(true),
+                    .shimmerSkeleton(),
             )
         } else {
             Icon(

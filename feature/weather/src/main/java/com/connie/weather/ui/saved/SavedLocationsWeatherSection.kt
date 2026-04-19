@@ -57,9 +57,7 @@ private fun SavedLocationsWeatherSectionContent(
     ) {
         when (val favorites = uiState.weathers) {
             is ViewState.Loading -> {
-                repeat(1) {
-                    WeatherPreviewLoadingItem()
-                }
+                WeatherPreviewLoadingItem()
             }
 
             is ViewState.Success -> {
@@ -152,7 +150,7 @@ private fun WeatherPreviewLoadingItem() {
             .height(84.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .shimmerSkeleton(enabled = true)
+            .shimmerSkeleton()
     )
 }
 

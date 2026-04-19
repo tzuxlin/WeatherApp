@@ -1,5 +1,6 @@
 package com.connie.weather.ui.weather.composable
 
+import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.connie.domain.model.ViewState
+import com.connie.ui.composable.rememberShimmerTransition
 import com.connie.ui.composable.shimmerSkeleton
 import com.connie.weather.R
 import com.connie.weather.ui.weather.CurrentWeatherState
@@ -44,12 +46,18 @@ private val loadingDailyForecastWidths = listOf(
     104.dp,
 )
 
-fun LazyListScope.dailyForecastItems(viewState: ViewState<PersistentList<ForecastState>>) {
+fun LazyListScope.dailyForecastItems(
+    viewState: ViewState<PersistentList<ForecastState>>,
+    shimmerTransition: InfiniteTransition,
+) {
     when (viewState) {
         is ViewState.Loading -> {
             loadingDailyForecastWidths.forEach {
                 item {
-                    LoadingDailyForecastItem(it)
+                    LoadingDailyForecastItem(
+                        transition = shimmerTransition,
+                        loadingWidth = it,
+                    )
                 }
             }
         }
@@ -117,7 +125,10 @@ private fun DailyForecastItem(item: ForecastState) {
 }
 
 @Composable
-private fun LoadingDailyForecastItem(loadingWidth: Dp) {
+private fun LoadingDailyForecastItem(
+    transition: InfiniteTransition,
+    loadingWidth: Dp,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,18 +141,18 @@ private fun LoadingDailyForecastItem(loadingWidth: Dp) {
             modifier = Modifier
                 .padding(end = 12.dp)
                 .size(height = 16.dp, width = 36.dp)
-                .shimmerSkeleton()
+                .shimmerSkeleton(infiniteTransition = transition)
         )
         Box(
             modifier = Modifier
                 .size(32.dp)
-                .shimmerSkeleton(shape = CircleShape)
+                .shimmerSkeleton(shape = CircleShape, infiniteTransition = transition)
                 .padding(4.dp)
         )
         Box(
             modifier = Modifier
                 .size(height = 16.dp, width = loadingWidth)
-                .shimmerSkeleton()
+                .shimmerSkeleton(infiniteTransition = transition)
                 .padding(end = 12.dp)
         )
     }
@@ -150,6 +161,7 @@ private fun LoadingDailyForecastItem(loadingWidth: Dp) {
 @Preview(showBackground = true)
 @Composable
 private fun PreviewDailyForecast() {
+    val shimmerTransition = rememberShimmerTransition()
     val forecasts = buildList {
         val weather = CurrentWeatherState(
             cityName = "Taipei",
@@ -178,9 +190,11 @@ private fun PreviewDailyForecast() {
             )
         }
     }.toPersistentList()
+
     LazyColumn {
         dailyForecastItems(
-            ViewState.Success(forecasts)
+            ViewState.Success(forecasts),
+            shimmerTransition,
         )
     }
 }
@@ -188,9 +202,8 @@ private fun PreviewDailyForecast() {
 @Preview(showBackground = true)
 @Composable
 private fun PreviewLoadingDailyForecast() {
+    val shimmerTransition = rememberShimmerTransition()
     LazyColumn {
-        dailyForecastItems(
-            ViewState.Loading
-        )
+        dailyForecastItems(ViewState.Loading, shimmerTransition)
     }
 }

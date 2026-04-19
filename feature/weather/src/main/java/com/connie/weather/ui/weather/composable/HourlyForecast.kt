@@ -1,5 +1,6 @@
 package com.connie.weather.ui.weather.composable
 
+import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import coil.request.ImageRequest
 import com.connie.domain.model.ViewState
 import com.connie.ui.composable.HorizontalFadingEdges
 import com.connie.ui.composable.rememberFadeVisibility
+import com.connie.ui.composable.rememberShimmerTransition
 import com.connie.ui.composable.shimmerSkeleton
 import com.connie.weather.ui.weather.CurrentWeatherState
 import com.connie.weather.ui.weather.ForecastState
@@ -40,6 +42,7 @@ fun HourlyForecast(viewState: ViewState<PersistentList<ForecastState>>) {
     if (viewState is ViewState.Error) return
 
     val lazyListState = rememberLazyListState()
+    val shimmerTransition = rememberShimmerTransition()
 
     HorizontalFadingEdges(
         modifier = Modifier
@@ -61,7 +64,7 @@ fun HourlyForecast(viewState: ViewState<PersistentList<ForecastState>>) {
                 ViewState.Loading -> {
                     repeat(6) {
                         item {
-                            LoadingHourlyForecastItem()
+                            LoadingHourlyForecastItem(shimmerTransition)
                         }
                     }
                 }
@@ -79,7 +82,7 @@ fun HourlyForecast(viewState: ViewState<PersistentList<ForecastState>>) {
 }
 
 @Composable
-private fun LoadingHourlyForecastItem() {
+private fun LoadingHourlyForecastItem(transition: InfiniteTransition) {
     Column(
         modifier = Modifier
             .sizeIn(minWidth = 40.dp),
@@ -88,20 +91,20 @@ private fun LoadingHourlyForecastItem() {
         Box(
             modifier = Modifier
                 .size(height = 16.dp, width = 40.dp)
-                .shimmerSkeleton(true)
+                .shimmerSkeleton(infiniteTransition = transition)
         )
         Box(
             modifier = Modifier
                 .padding(2.dp)
                 .size(36.dp)
                 .clip(CircleShape)
-                .shimmerSkeleton(true)
+                .shimmerSkeleton(infiniteTransition = transition)
                 .padding(4.dp),
         )
         Box(
             modifier = Modifier
                 .size(height = 16.dp, width = 24.dp)
-                .shimmerSkeleton(true)
+                .shimmerSkeleton(infiniteTransition = transition)
         )
     }
 }

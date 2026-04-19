@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +31,7 @@ import com.connie.domain.model.City
 import com.connie.domain.model.ViewState
 import com.connie.ui.composable.VerticalFadingEdges
 import com.connie.ui.composable.rememberFadeVisibility
+import com.connie.ui.composable.rememberShimmerTransition
 import com.connie.weather.R
 import com.connie.weather.ui.weather.composable.HourlyForecast
 import com.connie.weather.ui.weather.composable.CurrentWeatherInfo
@@ -80,8 +80,12 @@ private fun WeatherScreenContent(
 ) {
     val lazyListState = rememberLazyListState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val colorScheme = remember(uiState.isDaytime) {
+        if (uiState.isDaytime) lightColorScheme() else darkColorScheme()
+    }
+    val shimmerTransition = rememberShimmerTransition()
 
-    MaterialTheme(colorScheme = if (uiState.isDaytime) lightColorScheme() else darkColorScheme()) {
+    MaterialTheme(colorScheme = colorScheme) {
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -120,7 +124,10 @@ private fun WeatherScreenContent(
                             HourlyForecast(uiState.hourlyForecast)
                             Spacer(modifier = Modifier.size(24.dp))
                         }
-                        dailyForecastItems(uiState.dailyForecast)
+                        dailyForecastItems(
+                            viewState = uiState.dailyForecast,
+                            shimmerTransition = shimmerTransition,
+                        )
 
                         if (uiState.updatedOn.isNotEmpty()) {
                             item {
