@@ -38,8 +38,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.connie.domain.model.City
 import com.connie.domain.model.ViewState
 import com.connie.ui.R
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
-
 
 @Serializable
 data object SearchNavKey : NavKey
@@ -52,7 +52,8 @@ fun SearchCityScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     SearchCityScreenContent(
-        uiState = uiState,
+        query = uiState.query,
+        searchResult = uiState.searchResults,
         onBackClick = onBackClick,
         onQueryChange = { viewModel.onEvent(SearchCityEvent.OnQueryChange(it)) },
         onSearch = {},
@@ -66,7 +67,8 @@ fun SearchCityScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchCityScreenContent(
-    uiState: SearchCityUiState,
+    query: String,
+    searchResult: ViewState<PersistentList<City>>,
     onBackClick: () -> Unit,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
@@ -79,7 +81,7 @@ fun SearchCityScreenContent(
             TopAppBar(
                 title = {
                     CitySearchBar(
-                        uiState = uiState,
+                        query = query,
                         onQueryChange = onQueryChange,
                         onSearch = onSearch
                     )
@@ -97,7 +99,7 @@ fun SearchCityScreenContent(
         }
     ) { innerPadding ->
         SearchResultContent(
-            uiState = uiState,
+            searchResults = searchResult,
             onCityClick = onCityClick,
             modifier = Modifier
                 .fillMaxSize()
@@ -109,7 +111,7 @@ fun SearchCityScreenContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CitySearchBar(
-    uiState: SearchCityUiState,
+    query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
 ) {
@@ -120,7 +122,7 @@ private fun CitySearchBar(
     }
 
     SearchBarDefaults.InputField(
-        query = uiState.query,
+        query = query,
         onQueryChange = {
             onQueryChange(it)
         },
@@ -146,15 +148,15 @@ private fun CitySearchBar(
 
 @Composable
 private fun SearchResultContent(
-    uiState: SearchCityUiState,
+    searchResults: ViewState<PersistentList<City>>,
     onCityClick: (City) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
         when {
-            uiState.searchResults is ViewState.Success && uiState.searchResults.data.isNotEmpty() -> {
+            searchResults is ViewState.Success && searchResults.data.isNotEmpty() -> {
                 CityList(
-                    cities = uiState.searchResults.data,
+                    cities = searchResults.data,
                     leadingIcon = {
                         Icon(
                             painter = painterResource(R.drawable.ic_location),
@@ -175,7 +177,7 @@ private fun SearchResultContent(
 
 @Composable
 private fun CityList(
-    cities: List<City>,
+    cities: PersistentList<City>,
     leadingIcon: @Composable () -> Unit,
     onCityClick: (City) -> Unit,
     modifier: Modifier = Modifier,
@@ -244,18 +246,15 @@ private fun EmptySearchState() {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 private fun SearchCityScreenContentResultPreview() {
     SearchCityScreenContent(
-        uiState = SearchCityUiState(
-            query = "to",
-            searchResults = ViewState.Success(
-                persistentListOf(
-                    City("Taipei", "TW", 0.0, 0.0),
-                )
-            ),
+        query = "to",
+        searchResult = ViewState.Success(
+            persistentListOf(
+                City("Taipei", "TW", 0.0, 0.0),
+            )
         ),
         onBackClick = {},
         onQueryChange = {},
@@ -268,10 +267,8 @@ private fun SearchCityScreenContentResultPreview() {
 @Composable
 private fun SearchCityScreenContentEmptyPreview() {
     SearchCityScreenContent(
-        uiState = SearchCityUiState(
-            query = "zzzz",
-            searchResults = ViewState.Success(persistentListOf())
-        ),
+        query = "zzzz",
+        searchResult = ViewState.Success(persistentListOf()),
         onBackClick = {},
         onQueryChange = {},
         onSearch = {},
