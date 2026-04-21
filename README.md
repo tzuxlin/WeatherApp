@@ -26,12 +26,9 @@ A modern, modular Android weather application built with Jetpack Compose, featur
 
 ## Features
 
-- **Real-time Weather**: View current weather conditions for any city.
-- **Weather Forecast**: Check multi-day forecasts with detailed information.
+- **Weather Forecast**: Check weather conditions and multi-day forecasts for any city.
 - **City Search**: Search for cities globally using the OpenWeather Geocoding API.
 - **Saved Cities**: Save up to 5 cities for quick access.
-- **Responsive UI**: Built entirely with Jetpack Compose for a fluid and modern user experience.
-- **Navigation**: Built with Navigation3 for type-safe and flexible navigation.
 
 ## Tech Stack
 
