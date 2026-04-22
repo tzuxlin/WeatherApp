@@ -1,15 +1,16 @@
-package com.connie.data.db.dto
+package com.connie.data.db
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.connie.data.db.dto.CityEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SavedCityDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertCity(city: CityEntity): Long
 
     @Query("SELECT * FROM saved_cities ORDER BY name ASC")

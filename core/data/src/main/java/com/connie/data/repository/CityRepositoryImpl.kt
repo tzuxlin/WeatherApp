@@ -1,7 +1,7 @@
 package com.connie.data.repository
 
 import com.connie.data.db.dto.CityEntity
-import com.connie.data.db.dto.SavedCityDao
+import com.connie.data.db.SavedCityDao
 import com.connie.domain.model.City
 import com.connie.domain.repository.CityRepository
 import kotlinx.coroutines.flow.Flow

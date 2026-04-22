@@ -2,8 +2,8 @@ package com.connie.data.di
 
 import android.content.Context
 import androidx.room.Room
-import com.connie.data.db.dto.AppDatabase
-import com.connie.data.db.dto.SavedCityDao
+import com.connie.data.db.AppDatabase
+import com.connie.data.db.SavedCityDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
